@@ -8,7 +8,7 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
 # ♡♡♡ Настройки, сенпай! ♡♡♡
 INTERVAL_MINUTES = 30
-TOKEN = "ТОКЕН_ТВОЕГО_БОТА_ЗДЕСЬ"
+TOKEN = "8071968546:AAHflXlR1nkVfIGHdlQSPe3rj4Q---1BQ4g"
 
 bot = Bot(token=TOKEN)
 dp = Dispatcher()
