@@ -97,7 +97,7 @@ async def send_random_mixed(chat_id, amount=3, caption_base="", force_nsfw=False
         await bot.send_message(chat_id, "Ууу~ Ошибочка с API... ♡")
         print(f"[DEBUG] Ошибка в send_random_mixed: {e}")
 
-async def send_waifu_by_tag(chat_id, tag, amount=1, caption_base=""):
+async def send_waifu_by_tag(chat_id, tag, amount=3, caption_base=""):
     try:
         print(f"[DEBUG] send_waifu_by_tag | chat_id={chat_id} | tag={tag}")
         params_str = f"included_tags={tag}&limit={amount}&is_nsfw=true"
@@ -154,7 +154,7 @@ async def cmd_help(message: types.Message):
 @command_handler
 async def cmd_nsfw(message: types.Message):
     print(f"[DEBUG] Команда /nsfw | chat_id={message.chat.id}")
-    await send_random_mixed(message.chat.id, amount=1, caption_base="Горяченькая случайная: ", force_nsfw=True)
+    await send_random_mixed(message.chat.id, amount=3, caption_base="Горяченькая случайная: ", force_nsfw=True)
 
 # Динамические команды по тегам
 for tag in NSFW_TAGS:
