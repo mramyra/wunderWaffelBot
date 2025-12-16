@@ -1,19 +1,14 @@
 import asyncio
 import requests
 import random
-from aiogram import Bot, Dispatcher, types
+from aiogram import Bot, Dispatcher, types, F
 from aiogram.filters import Command
 from aiogram.types import ContentType
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
-from aiogram import F
 
 # ♡♡♡ Настройки, сенпай! ♡♡♡
-INTERVAL_MINUTES = 1
-TOKEN = "8071968546:AAHflXlR1nkVfIGHdlQSPe3rj4Q---1BQ4g"
-
-# ♡♡♡ Запрещённые теги ♡♡♡
-FORBIDDEN_TAGS = ["futanari", "loli", "lolicon", "yaoi", "gay",
-                  "femboy", "trap", "transgender", "male", "furry", "shota"]
+INTERVAL_MINUTES = 30
+TOKEN = "ТОКЕН_ТВОЕГО_БОТА_ЗДЕСЬ"
 
 bot = Bot(token=TOKEN)
 dp = Dispatcher()
@@ -32,27 +27,16 @@ NSFW_TAGS = {
     "ero": "Эро, полное соблазна... ууу~ 🔥"
 }
 
-# Для запретов
-
-
-def build_excluded_param():
-    if FORBIDDEN_TAGS:
-        return {"excluded_tags": FORBIDDEN_TAGS}
-    return {}
-
-
-async def send_random_mixed(chat_id, amount=3, caption_base=""):
+async def send_random_mixed(chat_id, amount=3, caption_base="", force_nsfw=False):
     try:
-        is_nsfw = random.choice([True, False])
-        params = {"limit": amount}
+        is_nsfw = force_nsfw or random.choice([True, False])
+        params_str = f"limit={amount}"
         if is_nsfw:
-            params["is_nsfw"] = "true"
-        params.update(build_excluded_param())
-
-        response = requests.get(
-            "https://api.waifu.im/search", params=params, timeout=10)
+            params_str += "&is_nsfw=true"
+        
+        response = requests.get(f"https://api.waifu.im/search?{params_str}", timeout=10)
         response.raise_for_status()
-
+        
         data = response.json()
         if 'images' in data and data['images']:
             for image in data['images']:
@@ -69,17 +53,13 @@ async def send_random_mixed(chat_id, amount=3, caption_base=""):
         await bot.send_message(chat_id, "Ууу~ Ошибочка с API... ♡")
         print(e)
 
-
 async def send_waifu_by_tag(chat_id, tag, amount=3, caption_base=""):
     try:
-        # Всегда NSFW для этих тегов 🔥
-        params = {"included_tags": [tag], "limit": amount, "is_nsfw": "true"}
-        params.update(build_excluded_param())
-
-        response = requests.get(
-            "https://api.waifu.im/search", params=params, timeout=10)
+        params_str = f"included_tags={tag}&limit={amount}&is_nsfw=true"
+        
+        response = requests.get(f"https://api.waifu.im/search?{params_str}", timeout=10)
         response.raise_for_status()
-
+        
         data = response.json()
         if 'images' in data and data['images']:
             for image in data['images']:
@@ -92,42 +72,33 @@ async def send_waifu_by_tag(chat_id, tag, amount=3, caption_base=""):
         await bot.send_message(chat_id, "Ууу~ Ошибочка... ♡")
         print(e)
 
-# Триггер на фото ♡
-# Новый триггер на фото — теперь точно сработает! ♡
-
-
+# Триггер на фото в группах и личке ♡
 @dp.message(F.photo)
 async def on_photo(message: types.Message):
     await message.reply("Ууу~ Фото? Держи три случайные вкусняшки~ ♡♡♡ (может быть горяченько 🔥)")
-
     await send_random_mixed(message.chat.id, amount=3, caption_base="Ответ на твоё фото: ")
 
 # /help ♡
-
-
 @dp.message(Command("help"))
 async def cmd_help(message: types.Message):
     help_text = "<b>Кавайные команды ботика~ ♡</b>\n\n"
     help_text += "<b>NSFW команды по тегам (шлёт 3 горяченьких артика 🔥):</b>\n"
     for tag, desc in NSFW_TAGS.items():
         help_text += f"/{tag} — {desc}\n"
-
+    
     help_text += "\n<b>Другие команды:</b>\n"
     help_text += "/nsfw — 3 случайные горяченькие ♡🔥\n"
     help_text += f"/start_spam — авто-арты каждые {INTERVAL_MINUTES} мин\n"
     help_text += "/stop_spam — выключить авто\n"
     help_text += "/help — это меню~ ♡\n\n"
     help_text += "Кидай фото — получишь 3 случайные (SFW/NSFW)! ♡"
-
+    
     await message.answer(help_text, parse_mode="HTML")
 
 # /nsfw ♡
-
-
 @dp.message(Command("nsfw"))
 async def cmd_nsfw(message: types.Message):
-    # Только NSFW для /nsfw
-    await send_random_mixed(message.chat.id, amount=3, caption_base="Горяченькая случайная: ", is_nsfw=True)
+    await send_random_mixed(message.chat.id, amount=3, caption_base="Горяченькая случайная: ", force_nsfw=True)
 
 # Динамические команды только для NSFW тегов ♡
 for tag in NSFW_TAGS:
@@ -135,9 +106,7 @@ for tag in NSFW_TAGS:
     async def dynamic_tag_cmd(message: types.Message):
         await send_waifu_by_tag(message.chat.id, tag, amount=3, caption_base="")
 
-# Периодичка и остальное как раньше ♡
-
-
+# Периодичка ♡
 @dp.message(Command("start_spam"))
 async def cmd_start_spam(message: types.Message):
     if message.chat.type in ['group', 'supergroup']:
@@ -147,7 +116,6 @@ async def cmd_start_spam(message: types.Message):
         if not scheduler.running:
             scheduler.start()
 
-
 @dp.message(Command("stop_spam"))
 async def cmd_stop_spam(message: types.Message):
     if message.chat.type in ['group', 'supergroup']:
@@ -155,15 +123,12 @@ async def cmd_stop_spam(message: types.Message):
         active_chats.discard(chat_id)
         await message.answer("Ууу~ Периодичка выключена... Но всё остальное работает ♡")
 
-
 async def scheduled_job():
     for chat_id in list(active_chats):
         await send_random_mixed(chat_id, amount=1, caption_base=f"Авто-вкусняшка каждые {INTERVAL_MINUTES} мин~ ")
 
-
 async def main():
-    scheduler.add_job(scheduled_job, 'interval',
-                      minutes=INTERVAL_MINUTES, id='waifu_spam')
+    scheduler.add_job(scheduled_job, 'interval', minutes=INTERVAL_MINUTES, id='waifu_spam')
     scheduler.start()
     await dp.start_polling(bot)
 
