@@ -71,7 +71,7 @@ async def add_to_listened(chat_id):
         save_chats(listened_chats, LISTENED_CHATS_FILE)
         print(f"[DEBUG] Чат {chat_id} добавлен в listened_chats (всего: {len(listened_chats)})")
 
-async def send_random_mixed(chat_id, amount=2, caption_base="", force_nsfw=False):
+async def send_random_mixed(chat_id, amount=3, caption_base="", force_nsfw=False):
     try:
         is_nsfw = force_nsfw or random.choice([True, False])
         print(f"[DEBUG] send_random_mixed | chat_id={chat_id} | amount={amount} | force_nsfw={force_nsfw} | is_nsfw={is_nsfw}")
