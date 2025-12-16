@@ -122,12 +122,12 @@ async def cmd_help(message: types.Message):
 async def cmd_nsfw(message: types.Message):
     await send_random_mixed(message.chat.id, amount=3, caption_base="Горяченькая случайная: ")
 
-# Динамические команды по тегам ♡
+# Динамические команды по тегам ♡ (исправлено для aiogram 3.x!)
 for tag in ALL_TAGS:
-    @dp.message(Command(tag))
-    async def dynamic_tag_cmd(message: types.Message, command: types.CommandObject):
-        tag_name = tag  # фиксируем тег
-        await send_waifu_by_tag(message.chat.id, tag_name, amount=3, caption_base="")
+    async def tag_handler(message: types.Message):
+        await send_waifu_by_tag(message.chat.id, tag, amount=3, caption_base="")
+    
+    dp.message.register(tag_handler, Command(commands=[tag]))
 
 # Периодичка ♡
 @dp.message(Command("start_spam"))
