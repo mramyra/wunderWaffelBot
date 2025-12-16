@@ -7,10 +7,16 @@ from aiogram import Bot, Dispatcher, types, F
 from aiogram.filters import Command
 from aiogram.enums import UpdateType
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from dotenv import load_dotenv
 
 
 # ♡♡♡ Настройки, сенпай! ♡♡♡
-INTERVAL_MINUTES = 0.1
+INTERVAL_MINUTES = 50
+
+load_dotenv()  # Загружаем наши секретики ♡
+
+TOKEN = os.getenv("TOKEN")
+OWNER_ID = int(os.getenv("OWNER_ID"))
 
 TOKEN = os.environ["TOKEN"]
 OWNER_ID = int(os.environ["OWNER_ID"])
