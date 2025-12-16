@@ -125,28 +125,31 @@ async def cmd_stop_spam(message: types.Message):
 
 async def scheduled_job():
     for chat_id in list(active_chats):
-        # Берём случайный NSFW тег, чтобы API не ругался на пустой запрос ♡
-        random_tag = random.choice(list(NSFW_TAGS.keys()))
         try:
-            params_str = f"included_tags={random_tag}&limit=1"
-            # 50/50 шанс на NSFW или SFW
+            # 50/50 шанс на NSFW или SFW ♡
             if random.choice([True, False]):
-                params_str += "&is_nsfw=true"
+                # Горяченький NSFW с случайным тегом
+                tag = random.choice(list(NSFW_TAGS.keys()))
+                params_str = f"included_tags={tag}&limit=1&is_nsfw=true"
+                caption_add = f" (Горяченькая {tag} NSFW 🔥)"
+            else:
+                # Миленький SFW с тегом waifu
+                params_str = "included_tags=waifu&limit=1"
+                caption_add = " (Миленькая waifu SFW 🌸)"
             
-            response = requests.get(f"https://api.waifu.im/search?{params_str}", timeout=10)
+            response = requests.get(f"https://api.waifu.im/search?{params_str}", timeout=15)
             response.raise_for_status()
             
             data = response.json()
             if 'images' in data and data['images']:
                 url_img = data['images'][0]['url']
-                caption = f"Авто-вкусняшка каждые {INTERVAL_MINUTES} мин~ ♡"
-                if "is_nsfw=true" in params_str:
-                    caption += " (Горяченькая NSFW 🔥)"
-                else:
-                    caption += " (Миленькая SFW 🌸)"
+                caption = f"Авто-вкусняшка каждые {INTERVAL_MINUTES} мин~ ♡{caption_add}"
                 await bot.send_photo(chat_id, url_img, caption=caption)
             else:
-                await bot.send_message(chat_id, "Ууу~ Сегодня мало вкусняшек... Прости ♡")
+                await bot.send_message(chat_id, "Ууу~ Сегодня мало вкусняшек по этому тегу... Прости, ня~ ♡")
+        except requests.exceptions.HTTPError as http_err:
+            await bot.send_message(chat_id, "Ууу~ API немножко капризничает... ♡")
+            print(f"HTTP error: {http_err}")
         except Exception as e:
             await bot.send_message(chat_id, "Ууу~ Ошибочка в спаме... ♡")
             print(e)
