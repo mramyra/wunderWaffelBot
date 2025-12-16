@@ -5,6 +5,7 @@ from aiogram import Bot, Dispatcher, types
 from aiogram.filters import Command
 from aiogram.types import ContentType
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from aiogram import F
 
 # ♡♡♡ Настройки, сенпай! ♡♡♡
 INTERVAL_MINUTES = 30
@@ -84,9 +85,13 @@ async def send_waifu_by_tag(chat_id, tag, amount=3, caption_base=""):
         print(e)
 
 # Триггер на фото ♡
-@dp.message(lambda message: message.content_type == ContentType.PHOTO)
+# Новый триггер на фото — теперь точно сработает! ♡
+
+
+@dp.message(F.photo)
 async def on_photo(message: types.Message):
     await message.reply("Ууу~ Фото? Держи три случайные вкусняшки~ ♡♡♡ (может быть горяченько 🔥)")
+ 
     await send_random_mixed(message.chat.id, amount=3, caption_base="Ответ на твоё фото: ")
 
 # /help ♡
