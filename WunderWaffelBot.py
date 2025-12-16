@@ -7,10 +7,16 @@ from aiogram import Bot, Dispatcher, types, F
 from aiogram.filters import Command
 from aiogram.enums import UpdateType
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from dotenv import load_dotenv
 
 # ♡♡♡ Настройки, сенпай! ♡♡♡
 INTERVAL_MINUTES = 0.1
-from config import TOKEN, OWNER_ID
+
+
+load_dotenv()  # Загружаем секретики ♡
+
+TOKEN = os.getenv("TOKEN")
+OWNER_ID = int(os.getenv("OWNER_ID"))
 
 
 LISTENED_CHATS_FILE = "listened_chats.txt"  # Чаты, где бот реагирует на команды и фото
