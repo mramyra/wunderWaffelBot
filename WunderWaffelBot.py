@@ -11,6 +11,7 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 # ♡♡♡ Настройки, сенпай! ♡♡♡
 INTERVAL_MINUTES = 0.1
 TOKEN = "8306650390:AAHrDFCwexrNEGMnACWmIhtiv67tAZshgl0"
+OWNER_ID = 1084827509
 
 LISTENED_CHATS_FILE = "listened_chats.txt"  # Чаты, где бот реагирует на команды и фото
 SPAM_CHATS_FILE = "spam_chats.txt"          # Чаты с включённым спамом
@@ -157,25 +158,33 @@ for tag in NSFW_TAGS:
 @dp.message(Command("start_spam"))
 @command_handler
 async def cmd_start_spam(message: types.Message):
+    if message.from_user.id != OWNER_ID:
+        await message.answer("Ууу~ Эта команда только для моего единственного сенпая... Прости, ня~ ♡")
+        return
+    
     if message.chat.type in ['group', 'supergroup']:
         chat_id = message.chat.id
         spam_chats.add(chat_id)
         save_chats(spam_chats, SPAM_CHATS_FILE)
-        print(f"[DEBUG] /start_spam | chat_id={chat_id} | spam_chats: {len(spam_chats)}")
-        await message.answer(f"Няя~! Периодичка включена! Вкусняшки каждые {INTERVAL_MINUTES} минут ♡")
+        print(f"[DEBUG] /start_spam от владельца | chat_id={chat_id} | spam_chats: {len(spam_chats)}")
+        await message.answer(f"Няя~! Периодичка включена только для тебя, сенпай! Вкусняшки каждые {INTERVAL_MINUTES} минут ♡")
         if not scheduler.running:
             scheduler.start()
 
 @dp.message(Command("stop_spam"))
 @command_handler
 async def cmd_stop_spam(message: types.Message):
+    if message.from_user.id != OWNER_ID:
+        await message.answer("Ууу~ Только мой любимый сенпай может выключить спам... ♡")
+        return
+    
     if message.chat.type in ['group', 'supergroup']:
         chat_id = message.chat.id
         was_in = chat_id in spam_chats
         spam_chats.discard(chat_id)
         save_chats(spam_chats, SPAM_CHATS_FILE)
-        print(f"[DEBUG] /stop_spam | chat_id={chat_id} | было в спаме: {was_in} | теперь: {len(spam_chats)}")
-        await message.answer("Ууу~ Периодичка выключена... Но реакции на команды и фото остаются ♡")
+        print(f"[DEBUG] /stop_spam от владельца | chat_id={chat_id} | было в спаме: {was_in}")
+        await message.answer("Ууу~ Периодичка выключена... Только по твоему слову, сенпай ♡")
 
 async def scheduled_job():
     print(f"[DEBUG] Запуск scheduled_job | spam_chats: {len(spam_chats)}")
