@@ -125,7 +125,31 @@ async def cmd_stop_spam(message: types.Message):
 
 async def scheduled_job():
     for chat_id in list(active_chats):
-        await send_random_mixed(chat_id, amount=1, caption_base=f"Авто-вкусняшка каждые {INTERVAL_MINUTES} мин~ ")
+        # Берём случайный NSFW тег, чтобы API не ругался на пустой запрос ♡
+        random_tag = random.choice(list(NSFW_TAGS.keys()))
+        try:
+            params_str = f"included_tags={random_tag}&limit=1"
+            # 50/50 шанс на NSFW или SFW
+            if random.choice([True, False]):
+                params_str += "&is_nsfw=true"
+            
+            response = requests.get(f"https://api.waifu.im/search?{params_str}", timeout=10)
+            response.raise_for_status()
+            
+            data = response.json()
+            if 'images' in data and data['images']:
+                url_img = data['images'][0]['url']
+                caption = f"Авто-вкусняшка каждые {INTERVAL_MINUTES} мин~ ♡"
+                if "is_nsfw=true" in params_str:
+                    caption += " (Горяченькая NSFW 🔥)"
+                else:
+                    caption += " (Миленькая SFW 🌸)"
+                await bot.send_photo(chat_id, url_img, caption=caption)
+            else:
+                await bot.send_message(chat_id, "Ууу~ Сегодня мало вкусняшек... Прости ♡")
+        except Exception as e:
+            await bot.send_message(chat_id, "Ууу~ Ошибочка в спаме... ♡")
+            print(e)
 
 async def main():
     scheduler.add_job(scheduled_job, 'interval', minutes=INTERVAL_MINUTES, id='waifu_spam')
