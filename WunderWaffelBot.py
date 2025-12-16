@@ -10,7 +10,7 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
 # ♡♡♡ Настройки, сенпай! ♡♡♡
 INTERVAL_MINUTES = 0.1
-TOKEN = "8071968546:AAHflXlR1nkVfIGHdlQSPe3rj4Q---1BQ4g"
+TOKEN = "8306650390:AAHrDFCwexrNEGMnACWmIhtiv67tAZshgl0"
 
 LISTENED_CHATS_FILE = "listened_chats.txt"  # Чаты, где бот реагирует на команды и фото
 SPAM_CHATS_FILE = "spam_chats.txt"          # Чаты с включённым спамом
