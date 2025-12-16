@@ -1,0 +1,6 @@
+# ♡♡♡ Секретики только для сенпая! Никто не увидит ♡♡♡
+config.py
+*.pyc
+__pycache__
+listened_chats.txt
+spam_chats.txt

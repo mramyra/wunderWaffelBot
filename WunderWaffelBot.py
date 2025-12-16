@@ -10,8 +10,8 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
 # ♡♡♡ Настройки, сенпай! ♡♡♡
 INTERVAL_MINUTES = 0.1
-TOKEN = "8306650390:AAHrDFCwexrNEGMnACWmIhtiv67tAZshgl0"
-OWNER_ID = 1084827509
+from config import TOKEN, OWNER_ID
+
 
 LISTENED_CHATS_FILE = "listened_chats.txt"  # Чаты, где бот реагирует на команды и фото
 SPAM_CHATS_FILE = "spam_chats.txt"          # Чаты с включённым спамом
@@ -62,7 +62,7 @@ async def add_to_listened(chat_id):
         save_chats(listened_chats, LISTENED_CHATS_FILE)
         print(f"[DEBUG] Чат {chat_id} добавлен в listened_chats (всего: {len(listened_chats)})")
 
-async def send_random_mixed(chat_id, amount=3, caption_base="", force_nsfw=False):
+async def send_random_mixed(chat_id, amount=2, caption_base="", force_nsfw=False):
     try:
         is_nsfw = force_nsfw or random.choice([True, False])
         print(f"[DEBUG] send_random_mixed | chat_id={chat_id} | amount={amount} | force_nsfw={force_nsfw} | is_nsfw={is_nsfw}")
@@ -88,7 +88,7 @@ async def send_random_mixed(chat_id, amount=3, caption_base="", force_nsfw=False
         await bot.send_message(chat_id, "Ууу~ Ошибочка с API... ♡")
         print(f"[DEBUG] Ошибка в send_random_mixed: {e}")
 
-async def send_waifu_by_tag(chat_id, tag, amount=3, caption_base=""):
+async def send_waifu_by_tag(chat_id, tag, amount=1, caption_base=""):
     try:
         print(f"[DEBUG] send_waifu_by_tag | chat_id={chat_id} | tag={tag}")
         params_str = f"included_tags={tag}&limit={amount}&is_nsfw=true"
@@ -130,11 +130,11 @@ def command_handler(func):
 async def cmd_help(message: types.Message):
     print(f"[DEBUG] Команда /help | chat_id={message.chat.id}")
     help_text = "<b>Кавайные команды ботика~ ♡</b>\n\n"
-    help_text += "<b>NSFW команды по тегам (шлёт 3 горяченьких артика 🔥):</b>\n"
+    help_text += "<b>NSFW команды по тегам (шлёт 1 горяченьких артика 🔥):</b>\n"
     for tag, desc in NSFW_TAGS.items():
         help_text += f"/{tag} — {desc}\n"
     help_text += "\n<b>Другие команды:</b>\n"
-    help_text += "/nsfw — 3 случайные горяченькие ♡🔥\n"
+    help_text += "/nsfw — 1 случайную горяченькую ♡🔥\n"
     help_text += f"/start_spam — авто-арты каждые {INTERVAL_MINUTES} мин\n"
     help_text += "/stop_spam — выключить авто\n"
     help_text += "/help — это меню~ ♡\n\n"
@@ -145,7 +145,7 @@ async def cmd_help(message: types.Message):
 @command_handler
 async def cmd_nsfw(message: types.Message):
     print(f"[DEBUG] Команда /nsfw | chat_id={message.chat.id}")
-    await send_random_mixed(message.chat.id, amount=3, caption_base="Горяченькая случайная: ", force_nsfw=True)
+    await send_random_mixed(message.chat.id, amount=1, caption_base="Горяченькая случайная: ", force_nsfw=True)
 
 # Динамические команды по тегам
 for tag in NSFW_TAGS:
